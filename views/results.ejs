@@ -21,11 +21,12 @@
 <% if (previewSkipped) { %>
   <div class="card" style="text-align: center; padding: 48px 24px;">
     <p style="margin: 0 0 8px; font-size: 18px; color: var(--primary-green);">
-      Previews skipped — email is <%= Math.round(bytesAfter / 1024) %> KB (limit 500 KB).
+      Previews and deep fixes skipped — email is <%= Math.round(bytesAfter / 1024) %> KB (limit 500 KB).
     </p>
     <p style="margin: 0; font-size: 14px; color: var(--primary-grey);">
-      Shrink the email below the Gmail clipping threshold, then re-run to see the 8 client previews.
-      The cleaned HTML below is still valid — use the changelog and score to guide your fixes.
+      CSS inlining and minification were skipped to stay within the server's memory budget.
+      Shrink the email below 500 KB (externalize images in Creatio) and re-run for full QA + previews.
+      Score and changelog above reflect the lightweight ruleset.
     </p>
   </div>
 <% } else { %>

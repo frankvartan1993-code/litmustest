@@ -13,6 +13,9 @@ const renderPreview = require('./lib/renderPreview');
 const db = require('./lib/db');
 const rules = loadRules(path.join(__dirname, 'rules'));
 
+const HEAVY_RULE_IDS = new Set(['inline-css', 'minify-output']);
+const rulesLight = rules.filter(r => !HEAVY_RULE_IDS.has(r.id));
+
 const PREVIEW_MAX_BYTES = 500 * 1024;
 
 function buildChangelog(fixesApplied) {
@@ -76,12 +79,14 @@ app.post('/qa', async (req, res, next) => {
     if (html.length === 0 || !html.includes('<')) {
       return res.status(400).send("Doesn't look like HTML — try pasting again.");
     }
-    const startedAt = Date.now();
-    const ctx = await pipeline.run(html, { rules });
-    const durationMs = Date.now() - startedAt;
     const bytesBefore = Buffer.byteLength(html, 'utf8');
+    const oversized = bytesBefore > PREVIEW_MAX_BYTES;
+    const activeRules = oversized ? rulesLight : rules;
+    const startedAt = Date.now();
+    const ctx = await pipeline.run(html, { rules: activeRules });
+    const durationMs = Date.now() - startedAt;
     const bytesAfter = Buffer.byteLength(ctx.html, 'utf8');
-    const previewSkipped = bytesAfter > PREVIEW_MAX_BYTES;
+    const previewSkipped = oversized || bytesAfter > PREVIEW_MAX_BYTES;
     const previews = previewSkipped ? [] : renderPreview(ctx.html);
     const changelog = buildChangelog(ctx.fixesApplied);
     db.recordSubmission({
