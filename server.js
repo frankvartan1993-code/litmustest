@@ -10,6 +10,7 @@ const requireAuth = require('./lib/auth');
 const pipeline = require('./lib/pipeline');
 const { loadRules } = require('./lib/ruleLoader');
 const renderPreview = require('./lib/renderPreview');
+const db = require('./lib/db');
 const rules = loadRules(path.join(__dirname, 'rules'));
 
 function buildChangelog(fixesApplied) {
@@ -73,9 +74,26 @@ app.post('/qa', async (req, res, next) => {
     if (html.length === 0 || !html.includes('<')) {
       return res.status(400).send("Doesn't look like HTML — try pasting again.");
     }
+    const startedAt = Date.now();
     const ctx = await pipeline.run(html, { rules });
+    const durationMs = Date.now() - startedAt;
     const previews = renderPreview(ctx.html);
     const changelog = buildChangelog(ctx.fixesApplied);
+    const bytesBefore = Buffer.byteLength(html, 'utf8');
+    const bytesAfter = Buffer.byteLength(ctx.html, 'utf8');
+    db.recordSubmission({
+      campaignName: String(req.body.campaign || '').slice(0, 200) || null,
+      score: ctx.score.value,
+      grade: ctx.score.grade,
+      bytesBefore,
+      bytesAfter,
+      macrosBefore: ctx.macros.before,
+      macrosIntact: ctx.score.macrosIntact,
+      issuesDetected: ctx.issues,
+      fixesApplied: ctx.fixesApplied,
+      hardFail: ctx.score.hardFail,
+      durationMs
+    }).catch(() => {/* fire-and-forget; never block on DB */});
     render(res, 'results', {
       title: 'QA Results',
       score: ctx.score,
