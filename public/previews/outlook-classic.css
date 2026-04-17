@@ -1,0 +1,15 @@
+/* Outlook Classic (Word engine) — aggressive strips */
+* {
+  border-radius: 0 !important;
+  transform: none !important;
+  object-fit: unset !important;
+}
+*:not(body) { background-image: none !important; }
+[style*="display: flex"], [style*="display:flex"],
+[style*="display: grid"], [style*="display:grid"] { display: block !important; }
+[style*="position: absolute"], [style*="position:absolute"],
+[style*="position: fixed"], [style*="position:fixed"] { position: static !important; }
+body, table, td, p, span, h1, h2, h3, h4 {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+body { zoom: 1.25; }

@@ -1,0 +1,4 @@
+/* Gmail simulation — strips <style> tags without @media, enforces 14px min */
+head > style:not([media]) { display: none !important; }
+* { min-font-size: 14px; }
+body { font-family: Arial, sans-serif !important; }

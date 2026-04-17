@@ -1,0 +1,3 @@
+/* Outlook New (Edge engine) — modern; enforce light mode only */
+:root { color-scheme: light; }
+@media (prefers-color-scheme: dark) { body { filter: none; } }
