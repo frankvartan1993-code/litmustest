@@ -1,0 +1,23 @@
+<div class="hero">
+  <h1>Email QA Agent</h1>
+  <p>Paste your Creatio export. Get it client-ready.</p>
+</div>
+<form method="POST" action="/qa" id="qa-form">
+  <label for="campaign">Campaign name <span style="font-weight:300;color:var(--primary-grey);">(optional)</span></label>
+  <input id="campaign" name="campaign" type="text" placeholder="MKT-10021 Steri-Tamp Seals MCA" maxlength="200">
+
+  <div style="height: 24px;"></div>
+
+  <label for="html">Paste HTML</label>
+  <textarea id="html" name="html" placeholder="Paste email HTML here..." required></textarea>
+
+  <div style="margin-top: 32px; text-align: center;">
+    <button class="primary" type="submit" id="submit">Run QA</button>
+  </div>
+</form>
+<script>
+  const textarea = document.getElementById('html');
+  const button = document.getElementById('submit');
+  button.disabled = true;
+  textarea.addEventListener('input', () => { button.disabled = textarea.value.trim().length === 0; });
+</script>
