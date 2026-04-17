@@ -106,4 +106,11 @@ app.post('/qa', async (req, res, next) => {
   }
 });
 
+app.get('/stats', async (req, res, next) => {
+  try {
+    const stats = await db.getStats();
+    render(res, 'stats', { title: 'Dashboard', stats });
+  } catch (err) { next(err); }
+});
+
 app.listen(PORT, () => console.log(`Email QA Agent on :${PORT}`));

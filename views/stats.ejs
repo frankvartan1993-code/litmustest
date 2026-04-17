@@ -1,0 +1,57 @@
+<div class="hero">
+  <h1>Dashboard</h1>
+</div>
+
+<% if (!stats) { %>
+  <p>Stats temporarily unavailable.</p>
+<% } else { %>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+    <div class="stat-card">
+      <div class="value"><%= stats.emailsQad %></div>
+      <div class="label">emails QA'd</div>
+    </div>
+    <div class="stat-card">
+      <div class="value"><%= stats.emailsQad * 8 %></div>
+      <div class="label">previews generated</div>
+    </div>
+    <div class="stat-card" title="Assumes 20 min manual Litmus/device check loop per email">
+      <div class="value">≈ <%= Math.round(stats.emailsQad * 20 / 60) %> hrs</div>
+      <div class="label">saved</div>
+    </div>
+    <div class="stat-card">
+      <div class="value"><%= stats.avgScore %>%</div>
+      <div class="label">avg readiness score</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px;">
+    <div class="card">
+      <h3>Top issues detected</h3>
+      <% stats.topIssues.forEach(function(i) { %>
+        <div style="margin: 8px 0;"><span class="semibold"><%= i.n %></span> · <%= i.id %></div>
+      <% }); %>
+    </div>
+    <div class="card">
+      <h3>Top auto-fixes applied</h3>
+      <% stats.topFixes.forEach(function(f) { %>
+        <div style="margin: 8px 0;"><span class="semibold"><%= f.n %></span> · <%= f.id %></div>
+      <% }); %>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 48px;">Recent submissions</h3>
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr style="text-align: left; border-bottom: 1px solid var(--mid-grey);">
+      <th style="padding: 8px;">When</th>
+      <th style="padding: 8px;">Score</th>
+      <th style="padding: 8px;">Campaign</th>
+    </tr>
+    <% stats.recent.forEach(function(r) { %>
+      <tr style="border-bottom: 1px solid var(--inter-grey);">
+        <td style="padding: 8px;"><%= new Date(r.created_at).toISOString().replace('T',' ').slice(0,16) %></td>
+        <td style="padding: 8px;"><%= r.score %>% (<%= r.grade %>)</td>
+        <td style="padding: 8px;"><%= r.campaign_name || '—' %></td>
+      </tr>
+    <% }); %>
+  </table>
+<% } %>
