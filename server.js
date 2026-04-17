@@ -7,6 +7,9 @@ const MemoryStore = require('memorystore')(session);
 const path = require('path');
 
 const requireAuth = require('./lib/auth');
+const pipeline = require('./lib/pipeline');
+const { loadRules } = require('./lib/ruleLoader');
+const rules = loadRules(path.join(__dirname, 'rules'));
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -55,6 +58,23 @@ app.post('/login', (req, res) => {
 
 app.get('/', (req, res) => render(res, 'landing', { title: 'Run QA' }));
 
-// /qa POST, /stats GET added in later tasks
+app.post('/qa', async (req, res, next) => {
+  try {
+    const html = String(req.body.html || '');
+    if (html.length === 0 || !html.includes('<')) {
+      return res.status(400).send("Doesn't look like HTML — try pasting again.");
+    }
+    const ctx = await pipeline.run(html, { rules });
+    // Results template added in Task 44
+    res.type('application/json').send(JSON.stringify({
+      score: ctx.score,
+      issues: ctx.issues,
+      fixesApplied: ctx.fixesApplied,
+      ruleErrors: ctx.ruleErrors
+    }, null, 2));
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.listen(PORT, () => console.log(`Email QA Agent on :${PORT}`));
