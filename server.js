@@ -13,6 +13,8 @@ const renderPreview = require('./lib/renderPreview');
 const db = require('./lib/db');
 const rules = loadRules(path.join(__dirname, 'rules'));
 
+const PREVIEW_MAX_BYTES = 500 * 1024;
+
 function buildChangelog(fixesApplied) {
   const byId = new Map();
   for (const f of fixesApplied) {
@@ -77,10 +79,11 @@ app.post('/qa', async (req, res, next) => {
     const startedAt = Date.now();
     const ctx = await pipeline.run(html, { rules });
     const durationMs = Date.now() - startedAt;
-    const previews = renderPreview(ctx.html);
-    const changelog = buildChangelog(ctx.fixesApplied);
     const bytesBefore = Buffer.byteLength(html, 'utf8');
     const bytesAfter = Buffer.byteLength(ctx.html, 'utf8');
+    const previewSkipped = bytesAfter > PREVIEW_MAX_BYTES;
+    const previews = previewSkipped ? [] : renderPreview(ctx.html);
+    const changelog = buildChangelog(ctx.fixesApplied);
     db.recordSubmission({
       campaignName: String(req.body.campaign || '').slice(0, 200) || null,
       score: ctx.score.value,
@@ -99,6 +102,8 @@ app.post('/qa', async (req, res, next) => {
       score: ctx.score,
       changelog,
       previews,
+      previewSkipped,
+      bytesAfter,
       output: ctx.html
     });
   } catch (err) {

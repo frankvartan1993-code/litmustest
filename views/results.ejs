@@ -18,15 +18,27 @@
 </div>
 
 <h3>Previews</h3>
-<div class="preview-grid">
-  <% previews.forEach(function(p) { %>
-    <div class="preview-panel">
-      <h4><%= p.label %></h4>
-      <iframe sandbox="allow-same-origin" srcdoc="<%- p.srcdoc %>" loading="lazy"></iframe>
-    </div>
-  <% }); %>
-</div>
-<p class="fidelity-note">Previews are simulated approximations, not real client renders.</p>
+<% if (previewSkipped) { %>
+  <div class="card" style="text-align: center; padding: 48px 24px;">
+    <p style="margin: 0 0 8px; font-size: 18px; color: var(--primary-green);">
+      Previews skipped — email is <%= Math.round(bytesAfter / 1024) %> KB (limit 500 KB).
+    </p>
+    <p style="margin: 0; font-size: 14px; color: var(--primary-grey);">
+      Shrink the email below the Gmail clipping threshold, then re-run to see the 8 client previews.
+      The cleaned HTML below is still valid — use the changelog and score to guide your fixes.
+    </p>
+  </div>
+<% } else { %>
+  <div class="preview-grid">
+    <% previews.forEach(function(p) { %>
+      <div class="preview-panel">
+        <h4><%= p.label %></h4>
+        <iframe sandbox="allow-same-origin" srcdoc="<%- p.srcdoc %>" loading="lazy"></iframe>
+      </div>
+    <% }); %>
+  </div>
+  <p class="fidelity-note">Previews are simulated approximations, not real client renders.</p>
+<% } %>
 
 <h3 style="margin-top: 48px;">Output HTML</h3>
 <textarea id="output" readonly><%= output %></textarea>
