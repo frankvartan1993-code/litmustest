@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= title %> — Email QA Agent</title>
+  <link rel="stylesheet" href="/public/medisca.css">
+</head>
+<body>
+  <% if (showHeader) { %>
+  <header class="app-header">
+    <a href="/"><img class="logo" src="/public/logo.png" alt="Medisca"></a>
+    <nav>
+      <a href="/">Run QA</a>
+      <a href="/stats">Dashboard</a>
+    </nav>
+  </header>
+  <% } %>
+  <main class="container">
+    <%- body %>
+  </main>
+  <div class="footer">Built for Medisca marketing · v1.0</div>
+</body>
+</html>
