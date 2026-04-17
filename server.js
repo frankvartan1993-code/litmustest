@@ -9,7 +9,16 @@ const path = require('path');
 const requireAuth = require('./lib/auth');
 const pipeline = require('./lib/pipeline');
 const { loadRules } = require('./lib/ruleLoader');
+const renderPreview = require('./lib/renderPreview');
 const rules = loadRules(path.join(__dirname, 'rules'));
+
+function buildChangelog(fixesApplied) {
+  const byId = new Map();
+  for (const f of fixesApplied) {
+    if (!byId.has(f.id)) byId.set(f.id, f);
+  }
+  return Array.from(byId.values()).slice(0, 6).map(f => f.summary);
+}
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -65,13 +74,15 @@ app.post('/qa', async (req, res, next) => {
       return res.status(400).send("Doesn't look like HTML — try pasting again.");
     }
     const ctx = await pipeline.run(html, { rules });
-    // Results template added in Task 44
-    res.type('application/json').send(JSON.stringify({
+    const previews = renderPreview(ctx.html);
+    const changelog = buildChangelog(ctx.fixesApplied);
+    render(res, 'results', {
+      title: 'QA Results',
       score: ctx.score,
-      issues: ctx.issues,
-      fixesApplied: ctx.fixesApplied,
-      ruleErrors: ctx.ruleErrors
-    }, null, 2));
+      changelog,
+      previews,
+      output: ctx.html
+    });
   } catch (err) {
     next(err);
   }
