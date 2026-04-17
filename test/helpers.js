@@ -10,7 +10,7 @@ function loadFixture(name) {
 async function runRule(rule, html) {
   const ctx = parse(html);
   if (rule.detect) rule.detect(ctx);
-  if (rule.fix) rule.fix(ctx);
+  if (rule.fix) await rule.fix(ctx);
   ctx.macros.after = require('../lib/parse').captureMacros(ctx.html);
   return ctx;
 }
