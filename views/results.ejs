@@ -1,0 +1,44 @@
+<div style="display: flex; align-items: stretch; margin-bottom: 40px;">
+  <div class="score-ring <%= score.grade %>">
+    <div class="value"><%= score.value %>%</div>
+    <div class="grade"><%= score.grade %></div>
+  </div>
+  <div class="verdict-banner <%= score.grade %>">
+    <h2>
+      <% if (score.grade === 'ready')   { %>✓ Ready to send<% } %>
+      <% if (score.grade === 'review')  { %>⚠ Sendable but review warnings<% } %>
+      <% if (score.grade === 'blocked') { %>✕ Do not send — critical issues<% } %>
+    </h2>
+    <ul>
+      <% (changelog || []).slice(0, 6).forEach(function(line) { %>
+        <li><%= line %></li>
+      <% }); %>
+    </ul>
+  </div>
+</div>
+
+<h3>Previews</h3>
+<div class="preview-grid">
+  <% previews.forEach(function(p) { %>
+    <div class="preview-panel">
+      <h4><%= p.label %></h4>
+      <iframe sandbox="allow-same-origin" srcdoc="<%- p.srcdoc %>" loading="lazy"></iframe>
+    </div>
+  <% }); %>
+</div>
+<p class="fidelity-note">Previews are simulated approximations, not real client renders.</p>
+
+<h3 style="margin-top: 48px;">Output HTML</h3>
+<textarea id="output" readonly><%= output %></textarea>
+<div style="margin-top: 16px; text-align: right;">
+  <button class="primary" onclick="copyOut()">Copy HTML</button>
+</div>
+<script>
+  function copyOut() {
+    const t = document.getElementById('output');
+    t.select();
+    document.execCommand('copy');
+    event.target.textContent = 'Copied ✓';
+    setTimeout(() => { event.target.textContent = 'Copy HTML'; }, 1500);
+  }
+</script>
